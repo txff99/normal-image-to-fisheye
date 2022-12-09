@@ -11,19 +11,29 @@ class fisheye(object):
         self.img = img 
         self.fimg = None
         para = []
-        # try:
-        #     with open("data.txt","a") as f:
-        #         f.readline()
-        # except:
-        #     print("no exiting para.txt")
-        # else:
-        self.pitch = -0.6 
-        self.f0 = 1400
-        self.fc = 600
-        self.position_y = 1.5
-        self.position_x = 1
-        self.size_x = 400
-        self.size_y = 400
+        try:
+            with open("para.txt","r") as f:
+                for line in f:
+                    line=line.replace('\n','')
+                    para.append(line)
+                self.pitch = float(para[0])
+                self.f0 = int(para[1])
+                self.fc = int(para[2])
+                self.position_y = float(para[3])
+                self.position_x = float(para[4])
+                self.size_x = int(para[5])
+                self.size_y = int(para[6])
+
+                    
+        except:
+            print("no exiting para.txt")
+            self.pitch = -0.6 
+            self.f0 = 1400
+            self.fc = 600
+            self.position_y = 1.5
+            self.position_x = 1
+            self.size_x = 400
+            self.size_y = 400
 
 
 
@@ -50,10 +60,8 @@ class fisheye(object):
             self.norm2fisheye()
 
         def fc_set(value):
-            # print(type(value))
-            # print(self.fc)
             self.fc = int(value)
-            self.norm2fisheye()
+            self.norm2fisheye() 
         
         def position_set_x(value):
             self.position_x = float(value)
@@ -73,13 +81,12 @@ class fisheye(object):
 
         
         def save_para():
-            para=[self.f0,self.fc,self.pitch,self.position,self.size_x,self.size_y]
-            with open("para.txt","a") as f:
+            para=[self.pitch,self.f0,self.fc,self.position_x,self.position_y,self.size_x,self.size_y]
+            with open("para.txt","w") as f:
                 for i in para:
-                    f.writelines(i)
-
-
-            
+                    f.writelines(str(i)+'\n')
+            print("parameters saved in para.txt")
+      
         pitch=tk.Scale(win, from_ =-1, to =1,resolution =0.1,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='pitch',command=pitch_set)
         f0=tk.Scale(win, from_ =0, to =2000,resolution =10,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='f0',command=f0_set)
         fc=tk.Scale(win, from_ =300, to =1200,resolution =10,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='fc',command=fc_set)
@@ -145,13 +152,6 @@ class fisheye(object):
     
 
 if __name__ == "__main__":
-    # start = time.time()
     img = cv2.imread("zuerich00.png")
-    # fimg = norm2fisheye(img)
-    # end = time.time()
-    # print(f"spent:{end-start}s")
-    # cv2.imwrite("out.png",fimg)
-    # cv2.imshow('',fimg)
-    # cv2.waitKey(500)
     f = fisheye(img)
     f.adjust()
