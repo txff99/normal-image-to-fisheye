@@ -11,6 +11,9 @@ class fisheye(object):
         self.img = img 
         self.fimg = None
         para = []
+        self.w,self.h=img.shape[1],img.shape[0]
+        self.model=1
+        self.zoom=1
         try:
             with open("para.txt","r") as f:
                 for line in f:
@@ -30,7 +33,7 @@ class fisheye(object):
             self.pitch = -0.6 
             self.f0 = 1400
             self.fc = 600
-            self.position_y = 1.5
+            self.position_y = 1
             self.position_x = 1
             self.size_x = 400
             self.size_y = 400
@@ -41,7 +44,7 @@ class fisheye(object):
        
         win =tk.Tk()
         win.title("make your ideal fisheye image!")
-        win.geometry('400x500')
+        win.geometry('400x450')
 
         def show_img():
             if self.fimg is None:
@@ -62,6 +65,10 @@ class fisheye(object):
         def fc_set(value):
             self.fc = int(value)
             self.norm2fisheye() 
+
+        def zoom_set(value):
+            self.zoom = float(value)
+            self.norm2fisheye()     
         
         def position_set_x(value):
             self.position_x = float(value)
@@ -86,19 +93,34 @@ class fisheye(object):
                 for i in para:
                     f.writelines(str(i)+'\n')
             print("parameters saved in para.txt")
-      
-        pitch=tk.Scale(win, from_ =-1, to =1,resolution =0.1,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='pitch',command=pitch_set)
-        f0=tk.Scale(win, from_ =0, to =2000,resolution =10,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='f0',command=f0_set)
-        fc=tk.Scale(win, from_ =300, to =1200,resolution =10,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='fc',command=fc_set)
-        position_y=tk.Scale(win, from_ =0, to =4,resolution =0.2,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='position_y',command=position_set_y)
-        position_x=tk.Scale(win, from_ =0, to =4,resolution =0.2,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='position_x',command=position_set_x)
-        size_x=tk.Scale(win, from_ =100, to =800,resolution =10,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='size_x',command=size_set_x)
-        size_y=tk.Scale(win, from_ =100, to =800,resolution =10,orient=tk.HORIZONTAL,length =200,sliderlength= 20,label ='size_y',command=size_set_y)
-        save = tk.Button(win,text='save',bg='#7CCD7C',width=5, height=2,command=save_para)
+        
+        def set_model1():
+            self.model=1
+            print("using Orthographic")
 
+        def set_model2():
+            self.model=2
+            print("using Equidistant")
+      
+        def set_model3():
+            self.model=3
+            print("using Stereographic")
+
+        pitch=tk.Scale(win, from_ =-1, to =1,resolution =0.1,orient=tk.HORIZONTAL,length =250,sliderlength= 20,label ='pitch',command=pitch_set)
+        f0=tk.Scale(win, from_ =0, to =2000,resolution =10,orient=tk.HORIZONTAL,length =250,sliderlength= 20,label ='f0',command=f0_set)
+        zoom=tk.Scale(win, from_ =0, to =3,resolution =0.1,orient=tk.HORIZONTAL,length =250,sliderlength= 20,label ='zoom',command=zoom_set)
+        position_y=tk.Scale(win, from_ =0, to =4,resolution =0.2,orient=tk.HORIZONTAL,length =250,sliderlength= 20,label ='position_y',command=position_set_y)
+        position_x=tk.Scale(win, from_ =0, to =4,resolution =0.2,orient=tk.HORIZONTAL,length =250,sliderlength= 20,label ='position_x',command=position_set_x)
+        size_x=tk.Scale(win, from_ =100, to =800,resolution =10,orient=tk.HORIZONTAL,length =250,sliderlength= 20,label ='size_x',command=size_set_x)
+        size_y=tk.Scale(win, from_ =100, to =800,resolution =10,orient=tk.HORIZONTAL,length =250,sliderlength= 20,label ='size_y',command=size_set_y)
+        save = tk.Button(win,text='save',bg='#7CCD7C',width=5, height=2,command=save_para)
+        model1 = tk.Button(win,text='Orthographic',bg='yellow',width=12, height=2,command=set_model1)
+        model2 = tk.Button(win,text='Equidistant',bg='yellow',width=12, height=2,command=set_model2)
+        model3 = tk.Button(win,text='Stereographic',bg='yellow',width=12, height=2,command=set_model3)
+        
         pitch.set(value=self.pitch)
         f0.set(value=self.f0)
-        fc.set(value=self.fc)    
+        zoom.set(value=self.zoom)    
         position_x.set(value=self.position_x)
         position_y.set(value=self.position_y)
         size_x.set(value=self.size_x)
@@ -106,31 +128,41 @@ class fisheye(object):
         
         pitch.grid(row=1)
         f0.grid(row=2)
-        fc.grid(row=3)
-        position_x.grid(row=4)
-        position_y.grid(row=5)
-        size_x.grid(row=6)
-        size_y.grid(row=7)
-        save.grid(row=8, column=1,sticky="ne", padx=100, pady=0)
+        position_x.grid(row=3)
+        position_y.grid(row=4)
+        size_x.grid(row=5)
+        size_y.grid(row=6)
+        zoom.grid(row=7)
+        save.grid(row=7, column=1,sticky="ne", padx=50, pady=0)
+        model1.grid(row=1, column=1,sticky="ne", padx=50, pady=0)
+        model2.grid(row=2, column=1,sticky="ne", padx=50, pady=0)
+        model3.grid(row=3, column=1,sticky="ne", padx=50, pady=0)
         show_img()
         win.mainloop()
 
     def norm2fisheye(self):
+        if self.model==1:
+            self.model1()
+        elif self.model==2:
+            self.model2()
+        elif self.model==3:
+            self.model3()
+
+    def model1(self):
+        # Orthographic
+        self.fc = int(self.zoom*400/np.sin(np.arctan(self.w/(2*self.f0))))
         img= self.img
         pitch = self.pitch #pitch angle of fisheye camera
         f0 = self.f0 #f0 gets bigger, distortion gets smaller
         fc = self.fc #fisheye focal length
         rx = self.size_x #image size
         ry = self.size_y
-        w,h=img.shape[1],img.shape[0]
   
         ##build the transform map
-
-
         u=np.linspace(0,2*rx,2*rx)
         v=np.linspace(0,2*ry,2*ry)
         udst,vdst = np.meshgrid(u,v)
-        v,u = vdst-self.position_y*rx ,udst-self.position_x*ry #image position
+        v,u = vdst-self.position_y*rx+fc*np.sin(pitch) ,udst-self.position_x*ry #get proxy
         
         # rotate the fisheye sphere
         r1 = np.sqrt(fc**2-u**2)
@@ -141,13 +173,85 @@ class fisheye(object):
         r0 = f0*np.tan(np.arcsin(r/fc))
         p_theta = np.arctan2(yc,u)
         x,y = r0*np.cos(p_theta),r0*np.sin(p_theta)
-        map_x = x+w/2
-        map_y = y+h/2
+
+        map_x = x+self.w/2
+        map_y = y+self.h/2
         map_y = np.array(map_y,dtype=np.float32)
         map_x = np.array(map_x,dtype=np.float32)
 
         #transform
         self.fimg = cv2.remap(img,map_x,map_y,cv2.INTER_LINEAR)
+
+    def model2(self):    
+        # Equidistant
+        self.fc = int(self.zoom*400/np.arctan(self.w/(2*self.f0)))
+        img= self.img
+        pitch = self.pitch #pitch angle of fisheye camera
+        f0 = self.f0 #f0 gets bigger, distortion gets smaller
+        fc = self.fc #fisheye focal length
+        rx = self.size_x #image size
+        ry = self.size_y
+  
+        ##build the transform map
+        u=np.linspace(0,2*rx,2*rx)
+        v=np.linspace(0,2*ry,2*ry)
+        udst,vdst = np.meshgrid(u,v)
+        v,u = vdst-self.position_y*rx+fc*np.sin(pitch) ,udst-self.position_x*ry #get proxy
+        
+        # rotate the fisheye sphere
+        r1 = np.sqrt(fc**2-u**2)
+        yc = r1*np.cos(np.arccos(v/r1)+pitch)
+
+        # convert the proxy into raw image
+        r = np.sqrt(u**2+yc**2)
+        r0 = f0*np.tan(r/fc)
+        p_theta = np.arctan2(yc,u)
+        x,y = r0*np.cos(p_theta),r0*np.sin(p_theta)
+
+        map_x = x+self.w/2
+        map_y = y+self.h/2
+        map_y = np.array(map_y,dtype=np.float32)
+        map_x = np.array(map_x,dtype=np.float32)
+
+        #transform
+        self.fimg = cv2.remap(img,map_x,map_y,cv2.INTER_LINEAR)
+
+    def model3(self):    
+        # Stereographic
+        self.fc = int(self.zoom*200/np.tan(0.5*np.arctan(self.w/(2*self.f0))))
+        img= self.img
+        pitch = self.pitch #pitch angle of fisheye camera
+        f0 = self.f0 #f0 gets bigger, distortion gets smaller
+        fc = self.fc #fisheye focal length
+        rx = self.size_x #image size
+        ry = self.size_y
+  
+        ##build the transform map
+        u=np.linspace(0,2*rx,2*rx)
+        v=np.linspace(0,2*ry,2*ry)
+        udst,vdst = np.meshgrid(u,v)
+        v,u = vdst-self.position_y*rx+fc*np.sin(pitch) ,udst-self.position_x*ry #get proxy
+        
+        # rotate the fisheye sphere
+        r1 = np.sqrt(fc**2-u**2)
+        yc = r1*np.cos(np.arccos(v/r1)+pitch)
+
+        # convert the proxy into raw image
+        r = np.sqrt(u**2+yc**2)
+        r0 = f0*np.tan(2*np.arctan(r/(2*fc)))
+        p_theta = np.arctan2(yc,u)
+        x,y = r0*np.cos(p_theta),r0*np.sin(p_theta)
+
+        map_x = x+self.w/2
+        map_y = y+self.h/2
+        map_y = np.array(map_y,dtype=np.float32)
+        map_x = np.array(map_x,dtype=np.float32)
+
+        #transform
+        self.fimg = cv2.remap(img,map_x,map_y,cv2.INTER_LINEAR)
+
+
+
 
     
 
