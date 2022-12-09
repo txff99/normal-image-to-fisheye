@@ -1,4 +1,6 @@
 # normal-image-to-fisheye
-## transform normal image to fisheye image with a pitch angle  
+### available for several imaging principle models
 
-<img src="https://github.com/txff99/normal-image-to-fisheye/blob/main/demo1.png" width="200px">
+### add adjustments of image focal length and a pitch angle  
+
+<img src="https://github.com/txff99/normal-image-to-fisheye/blob/main/demo/demo1.png" width="200px">
