@@ -12,8 +12,6 @@ class fisheye(object):
         self.fimg = None
         para = []
         self.w,self.h=img.shape[1],img.shape[0]
-        self.model=1
-        self.zoom=1
         try:
             with open("para.txt","r") as f:
                 for line in f:
@@ -21,22 +19,24 @@ class fisheye(object):
                     para.append(line)
                 self.pitch = float(para[0])
                 self.f0 = int(para[1])
-                self.fc = int(para[2])
+                self.zoom = int(para[2])
                 self.position_y = float(para[3])
                 self.position_x = float(para[4])
                 self.size_x = int(para[5])
                 self.size_y = int(para[6])
+                self.model = int(para[7])
 
                     
         except:
             print("no exiting para.txt")
             self.pitch = -0.6 
             self.f0 = 1400
-            self.fc = 600
+            self.zoom = 1
             self.position_y = 1
             self.position_x = 1
             self.size_x = 400
             self.size_y = 400
+            self.model=1
 
 
 
@@ -51,7 +51,6 @@ class fisheye(object):
                 pass
             else:
                 cv2.imshow('',self.fimg)
-                # cv2.waitKey(20)
             win.after(50,show_img)
 
         def pitch_set(value):
@@ -62,9 +61,9 @@ class fisheye(object):
             self.f0 = int(value)
             self.norm2fisheye()
 
-        def fc_set(value):
-            self.fc = int(value)
-            self.norm2fisheye() 
+        # def fc_set(value):
+        #     self.fc = int(value)
+        #     self.norm2fisheye() 
 
         def zoom_set(value):
             self.zoom = float(value)
@@ -88,7 +87,7 @@ class fisheye(object):
 
         
         def save_para():
-            para=[self.pitch,self.f0,self.fc,self.position_x,self.position_y,self.size_x,self.size_y]
+            para=[self.pitch,self.f0,self.zoom,self.position_x,self.position_y,self.size_x,self.size_y,self.model]
             with open("para.txt","w") as f:
                 for i in para:
                     f.writelines(str(i)+'\n')
@@ -96,14 +95,17 @@ class fisheye(object):
         
         def set_model1():
             self.model=1
+            self.norm2fisheye()
             print("using Orthographic")
 
         def set_model2():
             self.model=2
+            self.norm2fisheye()
             print("using Equidistant")
       
         def set_model3():
             self.model=3
+            self.norm2fisheye()
             print("using Stereographic")
 
         pitch=tk.Scale(win, from_ =-1, to =1,resolution =0.1,orient=tk.HORIZONTAL,length =250,sliderlength= 20,label ='pitch',command=pitch_set)
@@ -150,11 +152,11 @@ class fisheye(object):
 
     def model1(self):
         # Orthographic
-        self.fc = int(self.zoom*400/np.sin(np.arctan(self.w/(2*self.f0))))
+        fc = int(self.zoom*400/np.sin(np.arctan(self.w/(2*self.f0))))
         img= self.img
         pitch = self.pitch #pitch angle of fisheye camera
         f0 = self.f0 #f0 gets bigger, distortion gets smaller
-        fc = self.fc #fisheye focal length
+        # fc = self.fc #fisheye focal length
         rx = self.size_x #image size
         ry = self.size_y
   
@@ -184,11 +186,11 @@ class fisheye(object):
 
     def model2(self):    
         # Equidistant
-        self.fc = int(self.zoom*400/np.arctan(self.w/(2*self.f0)))
+        fc = int(self.zoom*400/np.arctan(self.w/(2*self.f0)))
         img= self.img
         pitch = self.pitch #pitch angle of fisheye camera
         f0 = self.f0 #f0 gets bigger, distortion gets smaller
-        fc = self.fc #fisheye focal length
+        # fc = self.fc #fisheye focal length
         rx = self.size_x #image size
         ry = self.size_y
   
@@ -218,11 +220,11 @@ class fisheye(object):
 
     def model3(self):    
         # Stereographic
-        self.fc = int(self.zoom*200/np.tan(0.5*np.arctan(self.w/(2*self.f0))))
+        fc = int(self.zoom*200/np.tan(0.5*np.arctan(self.w/(2*self.f0))))
         img= self.img
         pitch = self.pitch #pitch angle of fisheye camera
         f0 = self.f0 #f0 gets bigger, distortion gets smaller
-        fc = self.fc #fisheye focal length
+        # fc = self.fc #fisheye focal length
         rx = self.size_x #image size
         ry = self.size_y
   
