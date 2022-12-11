@@ -9,4 +9,6 @@
 
 <img src="https://github.com/txff99/normal-image-to-fisheye/blob/main/demo/demo1.png" width="200px">  <img src="https://github.com/txff99/normal-image-to-fisheye/blob/main/demo/demo2.png" width="200px">  
 
-#### press the "save" button to save your adjustments in a "para.txt", the next time you run it, it will automatically show the parameters you saved. 
+#### save
+
+press the "save" button to save your adjustments in a "para.txt", the next time you run it, it will automatically show the parameters you saved. 
