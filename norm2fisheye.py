@@ -168,7 +168,7 @@ class fisheye(object):
         
         # rotate the fisheye sphere
         r1 = np.sqrt(fc**2-u**2)
-        yc = r1*np.cos(np.arccos(v/r1)+pitch)
+        yc = r1*np.sin(np.arcsin(v/r1)-pitch)
 
         # convert the proxy into raw image
         r = np.sqrt(u**2+yc**2)
@@ -187,6 +187,7 @@ class fisheye(object):
     def model2(self):    
         # Equidistant
         fc = int(self.zoom*400/np.arctan(self.w/(2*self.f0)))
+        # fc=1000
         img= self.img
         pitch = self.pitch #pitch angle of fisheye camera
         f0 = self.f0 #f0 gets bigger, distortion gets smaller
@@ -200,14 +201,24 @@ class fisheye(object):
         udst,vdst = np.meshgrid(u,v)
         v,u = vdst-self.position_y*rx+fc*np.sin(pitch) ,udst-self.position_x*ry #get proxy
         
-        # rotate the fisheye sphere
-        r1 = np.sqrt(fc**2-u**2)
-        yc = r1*np.cos(np.arccos(v/r1)+pitch)
+        rp = np.sqrt(u**2+v**2)
+        filter = rp/fc
+        filter[filter > np.pi/2]=None
+        orth = np.sin(filter)
+        x0 = fc*orth*u/rp #equidistant to Orthographic
+        y0 = fc*orth*v/rp
 
+        # rotate the fisheye sphere
+        r1 = np.sqrt(fc**2-x0**2)
+        filter2 = np.arcsin(y0/r1)-pitch
+        filter2[filter2>np.pi/2]=None
+        filter2[filter2<-np.pi/2]=None
+        yc = r1*np.sin(filter2) #rotate in direction of y
+        
         # convert the proxy into raw image
-        r = np.sqrt(u**2+yc**2)
-        r0 = f0*np.tan(r/fc)
-        p_theta = np.arctan2(yc,u)
+        r = np.sqrt(x0**2+yc**2)
+        r0 = f0*np.tan(np.arcsin(r/fc))
+        p_theta = np.arctan2(yc,x0)
         x,y = r0*np.cos(p_theta),r0*np.sin(p_theta)
 
         map_x = x+self.w/2
@@ -232,16 +243,27 @@ class fisheye(object):
         u=np.linspace(0,2*rx,2*rx)
         v=np.linspace(0,2*ry,2*ry)
         udst,vdst = np.meshgrid(u,v)
-        v,u = vdst-self.position_y*rx+fc*np.sin(pitch) ,udst-self.position_x*ry #get proxy
+        v,u = vdst-self.position_y*rx+1.2*fc*np.sin(pitch) ,udst-self.position_x*ry #get proxy
+
+        rp = np.sqrt(u**2+v**2)
+        filter = 2*np.arctan(rp/(2*fc))
+        filter[filter > np.pi/2]=None
+        orth = np.sin(filter)
+        x0 = fc*orth*u/rp #Stereographic to Orthographic
+        y0 = fc*orth*v/rp
+
         
         # rotate the fisheye sphere
-        r1 = np.sqrt(fc**2-u**2)
-        yc = r1*np.cos(np.arccos(v/r1)+pitch)
+        r1 = np.sqrt(fc**2-x0**2)
+        filter2 = np.arcsin(y0/r1)-pitch
+        # filter2[filter2>np.pi/2]=None
+        # filter2[filter2<-np.pi/2]=None
+        yc = r1*np.sin(filter2)  #rotate in direction of y
 
         # convert the proxy into raw image
-        r = np.sqrt(u**2+yc**2)
-        r0 = f0*np.tan(2*np.arctan(r/(2*fc)))
-        p_theta = np.arctan2(yc,u)
+        r = np.sqrt(x0**2+yc**2)
+        r0 = f0*np.tan(np.arcsin(r/fc))
+        p_theta = np.arctan2(yc,x0)
         x,y = r0*np.cos(p_theta),r0*np.sin(p_theta)
 
         map_x = x+self.w/2
