@@ -19,7 +19,7 @@ class fisheye(object):
                     para.append(line)
                 self.pitch = float(para[0])
                 self.f0 = int(para[1])
-                self.zoom = int(para[2])
+                self.zoom = float(para[2])
                 self.position_y = float(para[3])
                 self.position_x = float(para[4])
                 self.size_x = int(para[5])
@@ -280,6 +280,6 @@ class fisheye(object):
     
 
 if __name__ == "__main__":
-    img = cv2.imread("zuerich00.png")
+    img = cv2.imread("1_.png")
     f = fisheye(img)
     f.adjust()
