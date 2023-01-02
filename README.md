@@ -1,6 +1,6 @@
 ## convert normal image to fisheye image  
 
-#### available for several models  
+#### several models available  
 
 <img src="https://github.com/txff99/normal-image-to-fisheye/blob/main/demo/Equidistant.png" width="150px"> <img src="https://github.com/txff99/normal-image-to-fisheye/blob/main/demo/Orthographic.png" width="150px"> <img src="https://github.com/txff99/normal-image-to-fisheye/blob/main/demo/Stereographic.png" width="150px">  
 
